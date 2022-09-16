@@ -6,6 +6,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
 import { hash, compare } from 'bcryptjs';
 import { Container, Inject } from 'inversion-tools';
@@ -39,6 +40,7 @@ export abstract class User extends BaseEntity {
   updatedAt: Date;
 
   @BeforeInsert()
+  @BeforeUpdate()
   public async setPassword(): Promise<void> {
     const config = Container.resolve<IConfigService>(TYPES.ConfigService);
     this.password = await hash(this.password, Number(config.get('SALT')));

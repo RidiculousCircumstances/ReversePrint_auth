@@ -1,6 +1,5 @@
-import { ClientCreateDto } from '../client/dto/client-create.dto';
+import { ClientCreateDto, ClientUpdateDto } from '../client/dto/client-create.dto';
 import { ClientLoginDto } from '../client/dto/client-login.dto';
-import { ClientUpdateDto } from '../client/dto/client-update.dto';
 import { Client } from '../client/entities/client.entity';
 import { User } from '../common/user.entity';
 

@@ -2,8 +2,7 @@ import { Inject, Injectable } from 'inversion-tools';
 import { DataSource } from 'typeorm';
 import { MySQLService } from '../mySql/mySQL.service';
 import { TYPES } from '../types';
-import { ClientCreateDto } from './client/dto/client-create.dto';
-import { ClientUpdateDto } from './client/dto/client-update.dto';
+import { AddressDto, ClientCreateDto, ClientUpdateDto } from './client/dto/client-create.dto';
 import { Building } from './client/entities/building.entity';
 import { City } from './client/entities/city.entity';
 import { Client } from './client/entities/client.entity';
@@ -17,7 +16,7 @@ export class UserRepository {
     this.dataSource = mySQLService.dataSource;
   }
 
-  private async saveOrGetAddress(dto: ClientCreateDto | ClientUpdateDto): Promise<Building> {
+  private async saveOrGetAddress(dto: AddressDto): Promise<Building> {
     let city = await City.findOne({ where: { name: dto.city } });
 
     if (!city) {
@@ -50,7 +49,7 @@ export class UserRepository {
   }
 
   async saveClient(dto: ClientCreateDto): Promise<Client> {
-    const address = await this.saveOrGetAddress(dto);
+    const address = await this.saveOrGetAddress(dto.address);
     const client = Client.create(dto);
     client.addresses = [address];
     await client.save();
@@ -60,15 +59,35 @@ export class UserRepository {
   }
 
   async updateClientInfo(client: Client, dto: ClientUpdateDto): Promise<Client | null> {
-    const address = await this.saveOrGetAddress(dto);
-    const clientsAddresses = await this.dataSource.manager.find(Building, {
-      where: {
-        clients: {
-          id: client.id,
+    const addresses: Building[] | null = [];
+
+    if (dto.addresses) {
+      for (const address of dto.addresses) {
+        const addressItem = await this.saveOrGetAddress(address);
+        addresses.push(addressItem);
+      }
+      const clientsAddresses = await this.dataSource.manager.find(Building, {
+        where: {
+          clients: {
+            id: client.id,
+          },
         },
-      },
-    });
-    client.addresses = [...clientsAddresses, address];
+      });
+      client.addresses = [...clientsAddresses, ...addresses];
+    }
+
+    if (dto.personInfo) {
+      const info = dto.personInfo;
+      let oldInfo: keyof typeof client;
+      let newInfo: keyof typeof info;
+
+      for (newInfo in info) {
+        for (oldInfo in client)
+          if (oldInfo != 'addresses' && client[oldInfo] != info[newInfo] && oldInfo == newInfo) {
+            client[oldInfo] = info[newInfo];
+          }
+      }
+    }
     client.save();
     return client;
   }

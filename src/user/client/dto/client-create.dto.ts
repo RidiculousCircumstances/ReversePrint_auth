@@ -1,5 +1,34 @@
-import { IsEmail, IsMobilePhone, IsString, IsEnum, IsDefined, MinLength } from 'class-validator';
-import { RoleTypes } from '../../employee/entities/role.entity';
+import { Type } from 'class-transformer';
+import {
+  IsEmail,
+  IsMobilePhone,
+  IsString,
+  IsEnum,
+  IsDefined,
+  MinLength,
+  IsArray,
+  ValidateNested,
+  IsOptional,
+  ValidateIf,
+  IsNotEmpty,
+} from 'class-validator';
+
+export class AddressDto {
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  city: string;
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  street: string;
+
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  building: string;
+}
 
 export class ClientCreateDto {
   @IsString()
@@ -21,15 +50,45 @@ export class ClientCreateDto {
   @IsString()
   password: string;
 
-  @IsDefined({ message: 'City must be defined' })
-  @IsString()
-  city: string;
+  @ValidateNested()
+  @Type(() => AddressDto)
+  address: AddressDto;
+}
 
-  @IsDefined({ message: 'Street must be defined' })
+export class PersonInfo {
   @IsString()
-  street: string;
+  @IsNotEmpty()
+  name: string;
 
-  @IsDefined({ message: 'Building must be defined' })
   @IsString()
-  building: string;
+  @IsNotEmpty()
+  surname: string;
+
+  @IsString()
+  @IsEmail({ message: 'Email is not valid' })
+  @IsNotEmpty()
+  email: string;
+
+  @MinLength(8)
+  @IsDefined({ message: 'Password must be defined' })
+  @IsString()
+  @IsNotEmpty()
+  password: string;
+
+  @IsString()
+  @IsMobilePhone('ru-RU', { message: 'Phone number is not valid' })
+  @IsNotEmpty()
+  phoneNumber: string;
+}
+
+export class ClientUpdateDto {
+  @ValidateNested()
+  @Type(() => PersonInfo)
+  personInfo?: PersonInfo;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested()
+  @Type(() => AddressDto)
+  addresses?: AddressDto[];
 }

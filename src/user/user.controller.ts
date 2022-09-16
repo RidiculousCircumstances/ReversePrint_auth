@@ -1,16 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { Inject, Injectable } from 'inversion-tools';
 import { HTTPError } from '../errors/HTTP.error';
-import { ILoggerService } from '../logger/interfaces/logger.interface';
 import { TYPES } from '../types';
 import { BaseController } from '../common/base.controller';
-import { ClientCreateDto } from './client/dto/client-create.dto';
+import { ClientCreateDto, ClientUpdateDto } from './client/dto/client-create.dto';
 import { IUserController } from './interfaces/user.controller.interface';
 import { IUserService } from './interfaces/user.service.interface';
 import { ValidateMiddleware } from '../common/validate.middleware';
 import { ClientLoginDto } from './client/dto/client-login.dto';
-import { EmployeeCreateDto } from './employee/dto/employee-create.dto';
-import { ClientUpdateDto } from './client/dto/client-update.dto';
 
 @Injectable()
 export class UserController extends BaseController implements IUserController {
@@ -30,10 +27,10 @@ export class UserController extends BaseController implements IUserController {
         middlewares: [new ValidateMiddleware(ClientLoginDto)],
       },
       {
-        path: '/patch/:id',
+        path: '/update/:id',
         method: 'patch',
         function: this.patchClient,
-        // middlewares: [new ValidateMiddleware(ClientUpdateDto)],
+        middlewares: [new ValidateMiddleware(ClientUpdateDto)],
       },
     ]);
   }
@@ -65,10 +62,21 @@ export class UserController extends BaseController implements IUserController {
     }
   }
 
-  async patchClient({ body, params }: Request, res: Response, next: NextFunction): Promise<void> {
+  async patchClient(
+    { body, params }: Request<{ id: string }, {}, ClientUpdateDto>,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    if (!body.addresses && !body.personInfo) {
+      return next(
+        new HTTPError(422, 'Некорректные данные обновления пользователя', '[USER_CONTROLLER]'),
+      );
+    }
     const patchedClient = await this.userService.updateClientInfo(params.id, body);
     if (!patchedClient) {
-      return next(new HTTPError(404, 'Пользователь не найден', '[USER_CONTROLLER]'));
+      return next(
+        new HTTPError(404, 'Пользователь с таким email уже существует', '[USER_CONTROLLER]'),
+      );
     } else {
       this.ok(res, patchedClient);
     }

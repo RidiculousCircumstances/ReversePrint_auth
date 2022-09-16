@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, Router } from 'express';
-import { ClientUpdateDto } from '../client/dto/client-update.dto';
+import { ClientUpdateDto } from '../client/dto/client-create.dto';
 
 export interface IUserController {
   router: Router;

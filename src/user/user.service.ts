@@ -1,11 +1,10 @@
 import { Inject, Injectable } from 'inversion-tools';
 import { TYPES } from '../types';
-import { ClientCreateDto } from './client/dto/client-create.dto';
+import { ClientCreateDto, ClientUpdateDto } from './client/dto/client-create.dto';
 import { ClientLoginDto } from './client/dto/client-login.dto';
 import { IUserService } from './interfaces/user.service.interface';
 import { UserRepository } from './user.repository';
 import { Client } from './client/entities/client.entity';
-import { ClientUpdateDto } from './client/dto/client-update.dto';
 
 @Injectable()
 export class UserService implements IUserService {
@@ -27,7 +26,14 @@ export class UserService implements IUserService {
       return null;
     }
 
-    const updatedClient = this.userRepository.updateClientInfo(candidate, dto);
+    if (dto.personInfo) {
+      const checkedMail = await this.userRepository.findClientByEmail(dto.personInfo.email);
+      if (checkedMail) {
+        return null;
+      }
+    }
+
+    const updatedClient = await this.userRepository.updateClientInfo(candidate, dto);
 
     return updatedClient;
   }
