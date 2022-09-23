@@ -3,7 +3,6 @@ import {
   IsEmail,
   IsMobilePhone,
   IsString,
-  IsEnum,
   IsDefined,
   MinLength,
   IsArray,

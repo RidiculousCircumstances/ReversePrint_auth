@@ -8,7 +8,6 @@ import {
   JoinColumn,
   ManyToOne,
 } from 'typeorm';
-import { City } from './city.entity';
 import { Client } from './client.entity';
 import { Street } from './street.entity';
 

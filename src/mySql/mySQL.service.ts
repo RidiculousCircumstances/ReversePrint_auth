@@ -2,11 +2,13 @@ import { User } from '../user/common/user.entity';
 import { DataSource } from 'typeorm';
 import { Inject, Injectable } from 'inversion-tools';
 import { TYPES } from '../types';
-import { IConfigService } from 'src/config/interfaces/config.service.interface';
+import { IConfigService } from '../config/interfaces/config.service.interface';
 import { Client } from '../user/client/entities/client.entity';
 import { City } from '../user/client/entities/city.entity';
 import { Street } from '../user/client/entities/street.entity';
 import { Building } from '../user/client/entities/building.entity';
+import { Connection } from '../user/client/entities/connection.entity';
+import { AddressView, PersonView } from '../user/client/entities/clientView.entity';
 
 @Injectable()
 export class MySQLService {
@@ -20,7 +22,7 @@ export class MySQLService {
       username: configService.get('USERNAME'),
       password: configService.get('PASSWORD'),
       database: configService.get('DATABASE'),
-      entities: [Client, City, Street, Building, User],
+      entities: [Client, City, Street, Building, User, Connection, PersonView, AddressView],
       synchronize: true,
     });
   }

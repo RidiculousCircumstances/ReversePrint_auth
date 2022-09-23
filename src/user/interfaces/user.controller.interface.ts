@@ -4,8 +4,8 @@ import { ClientUpdateDto } from '../client/dto/client-create.dto';
 export interface IUserController {
   router: Router;
   login: (req: Request, res: Response, next: NextFunction) => void;
-  registerClient: (req: Request, res: Response, next: NextFunction) => void;
-  patchClient: (
+  registration: (req: Request, res: Response, next: NextFunction) => void;
+  update: (
     req: Request<{ id: string }, {}, ClientUpdateDto>,
     res: Response,
     next: NextFunction,

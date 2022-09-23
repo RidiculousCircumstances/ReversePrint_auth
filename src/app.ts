@@ -9,6 +9,7 @@ import { TYPES } from './types';
 import { IConfigService } from './config/interfaces/config.service.interface';
 import { IUserController } from './user/interfaces/user.controller.interface';
 import { IExeptionFilter } from './errors/interfaces/exeption.filter.interface';
+import Fingerprint from 'express-fingerprint';
 
 @Injectable()
 export class App {
@@ -27,7 +28,15 @@ export class App {
   }
 
   useMiddleWare(): void {
+    this.app.use(
+      cors({
+        credentials: true,
+        origin: this.configService.get('CLIENT_URL'),
+      }),
+    );
     this.app.use(express.json());
+    this.app.use(cookieParser());
+    this.app.use(Fingerprint());
   }
 
   useRoutes(): void {

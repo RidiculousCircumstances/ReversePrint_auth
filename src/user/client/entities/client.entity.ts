@@ -1,6 +1,7 @@
-import { Entity, Column, ManyToMany, Unique, JoinTable } from 'typeorm';
+import { Entity, Column, ManyToMany, Unique, JoinTable, OneToMany } from 'typeorm';
 import { User } from '../../common/user.entity';
 import { Building } from './building.entity';
+import { Connection } from './connection.entity';
 
 @Entity('client')
 @Unique(['email'])
@@ -8,7 +9,7 @@ export class Client extends User {
   @Column({
     default: false,
   })
-  isActive: boolean;
+  isActivated: boolean;
 
   @Column({
     nullable: true,
@@ -28,4 +29,7 @@ export class Client extends User {
     },
   })
   addresses: Building[];
+
+  @OneToMany(() => Connection, (token) => token.clientId)
+  connections: Connection[];
 }
